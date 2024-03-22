@@ -3,22 +3,22 @@ const cityInput = document.querySelector(".search-input");
 const cardsContainer = document.querySelector(".card-container");
 const waitMsg = document.querySelector(".wait");
 
-let cities = JSON.parse(localStorage.getItem("cities")) || []; // creo la variable donde se van a ir guadando las ciudades buscadas
+let cities = JSON.parse(localStorage.getItem("cities")) || []; 
 
-const saveLocalStorage = (cities) => {//funcion para guardar en el local storage
+const saveLocalStorage = (cities) => {
   localStorage.setItem("cities", JSON.stringify(cities));
 };
 
-const hideWaitMsg = (cities) => { //funcion que muestra o saca el mensaje "Ingrese una ciudad..."
-  if (cities.length) { //si hay elemento agrego la clase hidden (para entender ver la clase en el CSS)
+const hideWaitMsg = (cities) => { 
+  if (cities.length) { 
     waitMsg.classList.add("hidden");
     return;
   }
-  waitMsg.classList.remove("hidden");//sino hay elementos saco la clase hidden
+  waitMsg.classList.remove("hidden");
 };
-const convertKelvinToCelsius = (kelvins) => Math.round(kelvins - 273.15); //funcion para convertir de kelvins a °C
+const convertKelvinToCelsius = (kelvins) => Math.round(kelvins - 273.15); 
 
-const getCityHTML = (city) => {//funcion que nos crea el html de la card
+const getCityHTML = (city) => {
   return `
         <div class="card-clima animate">
         <i class="fa-solid fa-x close" data-id="${city.id}"></i>
@@ -55,49 +55,46 @@ const getCityHTML = (city) => {//funcion que nos crea el html de la card
     `;
 };
 
-const renderCitiesList = (cities) => {// funcion para renderizar las card
+const renderCitiesList = (cities) => {
   cardsContainer.innerHTML = cities.map((city) => getCityHTML(city)).join("");
 };
 
-const searchCity = async (e) => { //como la funcion que nos trae la data (requestCity())es una funcion asicrona, esta funcion tambien va a ser asincrona
+const searchCity = async (e) => { 
   e.preventDefault();
-  const searchedCity = cityInput.value.trim();//guando la ciudad ingresada en el input y le quito los espacios adelante y atras si los tuviese
-  if (searchedCity === "") { //creo un alert por si submitean con el input vacio
+  const searchedCity = cityInput.value.trim();
+  if (searchedCity === "") { 
     alert("Por favor ingrese una ciudad!");
     return;
   }
 
-  const fetchedCity = await requestCity(searchedCity); //llamo a la funcion que me trae la data de la ciudad buscada y guardo la data
+  const fetchedCity = await requestCity(searchedCity); 
 
-  // si la API encuentra la ciudad enviada nos devuelve un objeto con el ID de la ciudad, las cordenadas, el clima, etc
-  // y si no la encuentra nos envia un mensaje de erro 404
-  // entonces creo una funcion que le avise al usuario que no encontro la ciudad
-  if (!fetchedCity.id) { //si la respuesta es un 404 no va a tener el ID de la cuidad
+ 
+  if (!fetchedCity.id) { 
     alert("La ciudad ingresada no existe!");
     form.reset();
     return;
-  } else if (cities.some((city) => city.id === fetchedCity.id)) {// si ya existe la ciudad, le decimos que ya estamos mostrando el clima
+  } else if (cities.some((city) => city.id === fetchedCity.id)) {
     alert("Ya estamos mostrando el clima de esa ciudad!");
     form.reset();
     return;
   }
 
-  cities = [fetchedCity, ...cities];//guardo la nueva ciudad en el array de ciudades
-  renderCitiesList(cities); //renderizo la ciudades
-  saveLocalStorage(cities); // guardo en el local storage
+  cities = [fetchedCity, ...cities];
+  renderCitiesList(cities); 
+  saveLocalStorage(cities); 
   hideWaitMsg(cities);
   form.reset();
 
 
 }
 
-const removeCity = (e) => {//funcion para eliminar una ciudad
-  if (!e.target.classList.contains("close")) return; //si hago click en cualquier parte de la card que NO contenga la clase "close", sale
-  // si contiente la clase "close":
-  const clickedCityId = e.target.dataset.id; //guardo el id de esa card (se lo habiamos asignado en el reder de la card)
+const removeCity = (e) => {
+  if (!e.target.classList.contains("close")) return; 
+  const clickedCityId = e.target.dataset.id; 
 
   if (window.confirm("Está seguro que desea eliminar esta card de clima?")) {
-    cities = cities.filter((city) => city.id !== Number(clickedCityId)); //actualizo el array de ciudades con todas las ciudades qu no tengan el ID guardado en "clickedCityId"
+    cities = cities.filter((city) => city.id !== Number(clickedCityId)); 
     renderCitiesList(cities);
     saveLocalStorage(cities);
     hideWaitMsg(cities);
@@ -107,8 +104,8 @@ const removeCity = (e) => {//funcion para eliminar una ciudad
 
 const init = () => {
   renderCitiesList(cities);
-  form.addEventListener("submit", searchCity); // cuando submiteo llamo a la funcion serchCity
-  cardsContainer.addEventListener("click", removeCity); // para eliminar una ciudad
+  form.addEventListener("submit", searchCity); 
+  cardsContainer.addEventListener("click", removeCity); 
   hideWaitMsg(cities);
 };
 init();
